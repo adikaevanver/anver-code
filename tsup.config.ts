@@ -4,11 +4,10 @@ export default defineConfig({
   entry: ['bin/anver.ts'],
   format: ['esm'],
   target: 'node20',
-  outDir: 'dist/bin',
+  outDir: 'dist',
   splitting: false,
   sourcemap: true,
   clean: true,
-  banner: {
-    js: '#!/usr/bin/env node',
-  },
+  // Shebang is added to the bin entry via package.json "bin" field
+  // Node.js handles it when run via npm link / npx
 });
