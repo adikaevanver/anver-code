@@ -2,11 +2,17 @@ import type { BaseTool } from './BaseTool.js';
 import { ReadFileTool } from './ReadFile.js';
 import { WriteFileTool } from './WriteFile.js';
 import { EditFileTool } from './EditFile.js';
+import { BashTool } from './Bash.js';
+import { GlobTool } from './Glob.js';
+import { GrepTool } from './Grep.js';
 
 const tools: BaseTool<any, any>[] = [
   new ReadFileTool(),
   new WriteFileTool(),
   new EditFileTool(),
+  new BashTool(),
+  new GlobTool(),
+  new GrepTool(),
 ];
 
 export function getTools(): BaseTool<any, any>[] {
