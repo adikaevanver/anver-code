@@ -9,6 +9,10 @@ import { GitStatusTool } from './GitStatus.js';
 import { GitDiffTool } from './GitDiff.js';
 import { GitLogTool } from './GitLog.js';
 import { GitCommitTool } from './GitCommit.js';
+import { WebFetchTool } from './WebFetch.js';
+import { WebSearchTool } from './WebSearch.js';
+import { ListDirectoryTool } from './ListDirectory.js';
+import { FindFileTool } from './FindFile.js';
 
 const tools: BaseTool<any, any>[] = [
   new ReadFileTool(),
@@ -21,6 +25,10 @@ const tools: BaseTool<any, any>[] = [
   new GitDiffTool(),
   new GitLogTool(),
   new GitCommitTool(),
+  new WebFetchTool(),
+  new WebSearchTool(),
+  new ListDirectoryTool(),
+  new FindFileTool(),
 ];
 
 export function getTools(): BaseTool<any, any>[] {
