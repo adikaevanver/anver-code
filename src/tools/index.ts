@@ -5,6 +5,10 @@ import { EditFileTool } from './EditFile.js';
 import { BashTool } from './Bash.js';
 import { GlobTool } from './Glob.js';
 import { GrepTool } from './Grep.js';
+import { GitStatusTool } from './GitStatus.js';
+import { GitDiffTool } from './GitDiff.js';
+import { GitLogTool } from './GitLog.js';
+import { GitCommitTool } from './GitCommit.js';
 
 const tools: BaseTool<any, any>[] = [
   new ReadFileTool(),
@@ -13,6 +17,10 @@ const tools: BaseTool<any, any>[] = [
   new BashTool(),
   new GlobTool(),
   new GrepTool(),
+  new GitStatusTool(),
+  new GitDiffTool(),
+  new GitLogTool(),
+  new GitCommitTool(),
 ];
 
 export function getTools(): BaseTool<any, any>[] {
