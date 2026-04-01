@@ -1,7 +1,13 @@
 import type { BaseTool } from './BaseTool.js';
+import { ReadFileTool } from './ReadFile.js';
+import { WriteFileTool } from './WriteFile.js';
+import { EditFileTool } from './EditFile.js';
 
-// Tools will be imported and added here as they are implemented
-const tools: BaseTool<any, any>[] = [];
+const tools: BaseTool<any, any>[] = [
+  new ReadFileTool(),
+  new WriteFileTool(),
+  new EditFileTool(),
+];
 
 export function getTools(): BaseTool<any, any>[] {
   return tools;
