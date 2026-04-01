@@ -10,7 +10,7 @@ export interface Config {
 }
 
 const DEFAULT_CONFIG: Config = {
-  model: 'google/gemini-2.5-pro-exp-03-25',
+  model: 'qwen/qwen3.6-plus-preview:free',
   theme: 'default',
   autoApprove: ['ReadFile', 'Glob', 'Grep', 'ListDirectory', 'GitStatus', 'GitDiff', 'GitLog'],
 };
