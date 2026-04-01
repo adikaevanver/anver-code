@@ -50,6 +50,6 @@ export function getConfigValue(key: keyof Config): string | string[] | undefined
 
 export function setConfigValue(key: keyof Config, value: string | string[]): void {
   const config = loadConfig();
-  (config as Record<string, unknown>)[key] = value;
+  (config as unknown as Record<string, unknown>)[key] = value;
   saveConfig(config);
 }
