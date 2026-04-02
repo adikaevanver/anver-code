@@ -61,4 +61,24 @@ describe('systemPrompt', () => {
     const prompt = buildSystemPrompt(tmpDir, []);
     expect(prompt).not.toContain('Available Skills');
   });
+
+  it('includes skill creation instructions even with empty skills array', () => {
+    const prompt = buildSystemPrompt(tmpDir, []);
+    expect(prompt).toContain('# Creating Skills');
+  });
+
+  it('includes skill creation instructions when skills are provided', () => {
+    const skills: PromptSkill[] = [
+      { name: 'commit', description: 'Create a git commit', prompt: 'Do it.', source: 'global' },
+    ];
+    const prompt = buildSystemPrompt(tmpDir, skills);
+    expect(prompt).toContain('# Creating Skills');
+    expect(prompt).toContain('.anver-code/skills/');
+    expect(prompt).toContain('write_file');
+  });
+
+  it('does not include skill creation instructions when no skills provided', () => {
+    const prompt = buildSystemPrompt(tmpDir);
+    expect(prompt).not.toContain('Creating Skills');
+  });
 });

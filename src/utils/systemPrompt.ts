@@ -40,5 +40,27 @@ The user can trigger them with slash commands.
 ${skillLines}`);
   }
 
+  if (skills) {
+    sections.push(`# Creating Skills
+You can create new prompt skills for the user. A skill is a markdown file with YAML frontmatter.
+
+Format:
+\`\`\`
+---
+name: skill-name
+description: One-line description
+---
+
+The prompt text that will be injected when the user runs /skill-name.
+\`\`\`
+
+Directories:
+- Project-local (default): ${path.join(cwd, '.anver-code', 'skills')}/
+- Global: ~/.anver-code/skills/
+
+Use the write_file tool to create the .md file. Default to project-local unless the user asks for global.
+After creating a skill, tell the user it is available via /skill-name.`);
+  }
+
   return sections.join('\n\n');
 }
