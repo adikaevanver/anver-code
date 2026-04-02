@@ -10,6 +10,8 @@ const WriteFileInput = z.object({
 
 type WriteFileInputType = z.infer<typeof WriteFileInput>;
 
+export const WRITE_FILE_RESULT_PREFIX = 'Written ';
+
 export class WriteFileTool extends BaseTool<WriteFileInputType, string> {
   name = 'write_file';
   description = 'Write content to a file, creating it (and any parent directories) if it does not exist, or overwriting it if it does.';
@@ -20,6 +22,6 @@ export class WriteFileTool extends BaseTool<WriteFileInputType, string> {
     const dir = path.dirname(input.file_path);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(input.file_path, input.content, 'utf-8');
-    return `Written ${input.file_path}`;
+    return `${WRITE_FILE_RESULT_PREFIX}${input.file_path}`;
   }
 }

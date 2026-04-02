@@ -10,6 +10,10 @@ import { InputPrompt } from './InputPrompt.js';
 import { PermissionPrompt } from './PermissionPrompt.js';
 import { Spinner } from './Spinner.js';
 import { saveSession } from '../utils/history.js';
+import { loadSkills } from '../skills/loader.js';
+import { WRITE_FILE_RESULT_PREFIX } from '../tools/WriteFile.js';
+import path from 'path';
+import os from 'os';
 
 export interface AppProps {
   provider: LLMProvider;
@@ -32,6 +36,15 @@ interface PendingTool {
   deny: () => void;
 }
 
+function isSkillsPath(filePath: string, cwd: string): boolean {
+  const projectSkillsDir = path.join(cwd, '.anver-code', 'skills') + path.sep;
+  const globalSkillsDir = path.join(
+    process.env.ANVER_CODE_HOME ?? path.join(os.homedir(), '.anver-code'),
+    'skills',
+  ) + path.sep;
+  return filePath.startsWith(projectSkillsDir) || filePath.startsWith(globalSkillsDir);
+}
+
 export function App({
   provider,
   tools,
@@ -43,19 +56,6 @@ export function App({
   promptSkills,
 }: AppProps) {
   const { exit } = useApp();
-
-  const skillCommandsHelp = promptSkills.length > 0
-    ? '\n\nSkill commands:\n' + promptSkills.map((s) => `  /${s.name}${' '.repeat(Math.max(1, 15 - s.name.length))}${s.description}`).join('\n')
-    : '';
-
-  const helpText = `Available commands:
-  /exit          Exit the application
-  /clear         Reset the conversation
-  /help          Show this help message${skillCommandsHelp}
-
-Tips:
-  Up/Down arrows  Navigate input history
-  Enter           Submit your message`;
 
   // Use a ref for the conversation so async closures always see the latest value
   const conversationRef = useRef<Conversation>(
@@ -71,6 +71,20 @@ Tips:
   const [runningToolName, setRunningToolName] = useState<string | null>(null);
   const [inputHistory, setInputHistory] = useState<string[]>([]);
   const [helpVisible, setHelpVisible] = useState(false);
+  const [currentSkills, setCurrentSkills] = useState(promptSkills);
+
+  const skillCommandsHelp = currentSkills.length > 0
+    ? '\n\nSkill commands:\n' + currentSkills.map((s) => `  /${s.name}${' '.repeat(Math.max(1, 15 - s.name.length))}${s.description}`).join('\n')
+    : '';
+
+  const helpText = `Available commands:
+  /exit          Exit the application
+  /clear         Reset the conversation
+  /help          Show this help message${skillCommandsHelp}
+
+Tips:
+  Up/Down arrows  Navigate input history
+  Enter           Submit your message`;
 
   // Ref to hold resolve function for the permission gate
   const permissionResolveRef = useRef<((approved: boolean) => void) | null>(null);
@@ -138,7 +152,25 @@ Tips:
               break;
             }
 
-            case 'tool_result':
+            case 'tool_result': {
+              setRunningToolName(null);
+              syncMessages();
+              setAppState('streaming');
+
+              // Reload skills if a file was written to a skills directory
+              if (event.toolName === 'write_file' && event.result.startsWith(WRITE_FILE_RESULT_PREFIX)) {
+                const writtenPath = event.result.slice(WRITE_FILE_RESULT_PREFIX.length);
+                if (isSkillsPath(writtenPath, cwd)) {
+                  loadSkills(cwd).then((loaded) => {
+                    setCurrentSkills(loaded.promptSkills);
+                  }).catch(() => {
+                    // Non-fatal — skill reload failure shouldn't break the session
+                  });
+                }
+              }
+              break;
+            }
+
             case 'tool_error': {
               setRunningToolName(null);
               syncMessages();
@@ -205,7 +237,7 @@ Tips:
       // Check for skill slash command
       if (trimmed.startsWith('/')) {
         const skillName = trimmed.slice(1).split(/\s/)[0];
-        const skill = promptSkills.find((s) => s.name === skillName);
+        const skill = currentSkills.find((s) => s.name === skillName);
         if (skill) {
           setInputHistory((prev) => {
             if (prev.length > 0 && prev[prev.length - 1] === trimmed) return prev;
@@ -226,7 +258,7 @@ Tips:
       setHelpVisible(false);
       void processQuery(trimmed);
     },
-    [exit, systemPrompt, model, processQuery, promptSkills],
+    [exit, systemPrompt, model, processQuery, currentSkills],
   );
 
   const handleApprove = useCallback(() => {
