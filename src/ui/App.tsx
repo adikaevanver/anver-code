@@ -215,7 +215,7 @@ Tips:
       if (!trimmed) return;
 
       // Handle slash commands
-      if (trimmed === '/exit') {
+      if (trimmed === '/exit' || trimmed === 'exit') {
         exit();
         return;
       }
