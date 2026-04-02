@@ -44,7 +44,7 @@ anver
 # With an initial prompt
 anver "refactor the database module"
 
-# Override model (any OpenRouter model)
+# Override model
 anver -m meta-llama/llama-4-maverick:free "explain this codebase"
 
 # Resume last session
@@ -53,6 +53,17 @@ anver --resume
 # Load a specific session
 anver --session ~/.anver-code/sessions/abc123.json
 ```
+
+### Model Compatibility
+
+Anver Code requires a model that supports **function calling (tool use)** through OpenRouter's API. The agentic loop sends tool definitions to the model and expects structured tool call responses back — without this, the model can't read files, write code, run commands, or use any tools.
+
+**Known compatible free models:**
+- `qwen/qwen3.6-plus-preview:free` (default)
+
+**Will NOT work with** models that don't support function calling — they'll either error out or only chat without using tools.
+
+You can browse available models with tool support at [openrouter.ai/models](https://openrouter.ai/models) (filter by "tool use").
 
 ### Slash Commands (in-session)
 
