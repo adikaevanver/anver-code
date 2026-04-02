@@ -2,6 +2,14 @@ import React from 'react';
 import { Box, Text } from 'ink';
 import type { Message } from '../core/types.js';
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_(.+?)_/g, '$1');
+}
+
 interface MessageListProps {
   messages: Message[];
   streamingContent?: string;
@@ -27,7 +35,7 @@ export function MessageList({ messages, streamingContent }: MessageListProps) {
         if (message.role === 'assistant') {
           return (
             <Box key={index} marginBottom={1}>
-              <Text>{message.content}</Text>
+              <Text>{stripMarkdown(message.content)}</Text>
             </Box>
           );
         }
@@ -49,7 +57,7 @@ export function MessageList({ messages, streamingContent }: MessageListProps) {
 
       {streamingContent !== undefined && streamingContent !== '' && (
         <Box marginBottom={1}>
-          <Text>{streamingContent}</Text>
+          <Text>{stripMarkdown(streamingContent)}</Text>
         </Box>
       )}
     </Box>
