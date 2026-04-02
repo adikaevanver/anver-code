@@ -33,13 +33,32 @@ export class OpenRouterProvider implements LLMProvider {
     };
   }
 
+  private async createStreamWithRetry(
+    params: ChatParams,
+    maxRetries = 3,
+  ) {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await this.client.chat.completions.create({
+          model: params.model,
+          messages: params.messages as OpenAI.ChatCompletionMessageParam[],
+          tools: params.tools as OpenAI.ChatCompletionTool[],
+          stream: true,
+        });
+      } catch (err: unknown) {
+        const is429 =
+          err instanceof Error &&
+          ('status' in err && (err as any).status === 429);
+        if (!is429 || attempt === maxRetries) throw err;
+        const delay = Math.min(1000 * 2 ** attempt, 10000);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+    throw new Error('Unreachable');
+  }
+
   async *chat(params: ChatParams): AsyncIterable<StreamChunk> {
-    const stream = await this.client.chat.completions.create({
-      model: params.model,
-      messages: params.messages as OpenAI.ChatCompletionMessageParam[],
-      tools: params.tools as OpenAI.ChatCompletionTool[],
-      stream: true,
-    });
+    const stream = await this.createStreamWithRetry(params);
 
     const toolCallAccumulators: Map<number, { id: string; name: string; arguments: string }> = new Map();
 
