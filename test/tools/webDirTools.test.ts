@@ -24,7 +24,7 @@ describe('Web and Directory Tools', () => {
   describe('WebFetchTool', () => {
     const tool = new WebFetchTool();
     it('has correct metadata', () => {
-      expect(tool.name).toBe('WebFetch');
+      expect(tool.name).toBe('web_fetch');
       expect(tool.destructive).toBe(false);
     });
   });

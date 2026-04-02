@@ -9,7 +9,7 @@ const ListDirectoryInput = z.object({
 type ListDirectoryInputType = z.infer<typeof ListDirectoryInput>;
 
 export class ListDirectoryTool extends BaseTool<ListDirectoryInputType, string> {
-  name = 'ListDirectory';
+  name = 'list_directory';
   description = 'List the contents of a directory. Directories are shown with a trailing slash. Sorted alphabetically.';
   destructive = false;
   inputSchema = ListDirectoryInput;

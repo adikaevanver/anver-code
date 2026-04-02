@@ -12,7 +12,7 @@ export interface Config {
 const DEFAULT_CONFIG: Config = {
   model: 'qwen/qwen3.6-plus-preview:free',
   theme: 'default',
-  autoApprove: ['ReadFile', 'Glob', 'Grep', 'ListDirectory', 'GitStatus', 'GitDiff', 'GitLog'],
+  autoApprove: ['read_file', 'glob', 'grep', 'list_directory', 'find_file', 'web_fetch', 'web_search', 'git_status', 'git_diff', 'git_log'],
 };
 
 export function getConfigDir(): string {

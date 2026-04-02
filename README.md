@@ -88,10 +88,10 @@ You can browse available models with tool support at [openrouter.ai/models](http
 | `git_diff` | Show file diffs | Auto |
 | `git_log` | Show commit history | Auto |
 | `git_commit` | Create a commit | Required |
-| `WebFetch` | Fetch URL content | Auto |
-| `WebSearch` | DuckDuckGo search | Auto |
-| `ListDirectory` | List directory contents | Auto |
-| `FindFile` | Find files by name recursively | Auto |
+| `web_fetch` | Fetch URL content | Auto |
+| `web_search` | DuckDuckGo search | Auto |
+| `list_directory` | List directory contents | Auto |
+| `find_file` | Find files by name recursively | Auto |
 
 ## Skills
 

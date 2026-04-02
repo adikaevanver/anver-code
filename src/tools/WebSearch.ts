@@ -10,7 +10,7 @@ type WebSearchInputType = z.infer<typeof WebSearchInput>;
 const MAX_RESULTS = 8;
 
 export class WebSearchTool extends BaseTool<WebSearchInputType, string> {
-  name = 'WebSearch';
+  name = 'web_search';
   description = 'Search the web via DuckDuckGo and return up to 8 results with titles and snippets.';
   destructive = false;
   inputSchema = WebSearchInput;

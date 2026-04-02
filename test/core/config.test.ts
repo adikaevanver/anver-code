@@ -25,8 +25,8 @@ describe('config', () => {
 
   it('returns default config when no file exists', () => {
     const config = loadConfig();
-    expect(config.model).toBe('google/gemini-2.5-pro-exp-03-25');
-    expect(config.autoApprove).toContain('ReadFile');
+    expect(config.model).toBe('qwen/qwen3.6-plus-preview:free');
+    expect(config.autoApprove).toContain('read_file');
   });
 
   it('saves and loads config', () => {

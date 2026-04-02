@@ -10,7 +10,7 @@ const FindFileInput = z.object({
 type FindFileInputType = z.infer<typeof FindFileInput>;
 
 export class FindFileTool extends BaseTool<FindFileInputType, string> {
-  name = 'FindFile';
+  name = 'find_file';
   description = 'Find files by name recursively. Ignores node_modules. Returns matching paths as a newline-separated string.';
   destructive = false;
   inputSchema = FindFileInput;

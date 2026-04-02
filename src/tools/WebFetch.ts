@@ -10,7 +10,7 @@ type WebFetchInputType = z.infer<typeof WebFetchInput>;
 const MAX_LENGTH = 50000;
 
 export class WebFetchTool extends BaseTool<WebFetchInputType, string> {
-  name = 'WebFetch';
+  name = 'web_fetch';
   description = 'Fetch the content of a URL and return it as text. Truncates at 50000 characters.';
   destructive = false;
   inputSchema = WebFetchInput;
