@@ -10,7 +10,7 @@ export interface Config {
 }
 
 const DEFAULT_CONFIG: Config = {
-  model: 'qwen/qwen3.6-plus-preview:free',
+  model: 'qwen/qwen3.6-plus:free',
   theme: 'default',
   autoApprove: ['read_file', 'glob', 'grep', 'list_directory', 'find_file', 'web_fetch', 'web_search', 'git_status', 'git_diff', 'git_log'],
 };

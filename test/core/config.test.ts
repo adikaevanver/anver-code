@@ -25,7 +25,7 @@ describe('config', () => {
 
   it('returns default config when no file exists', () => {
     const config = loadConfig();
-    expect(config.model).toBe('qwen/qwen3.6-plus-preview:free');
+    expect(config.model).toBe('qwen/qwen3.6-plus:free');
     expect(config.autoApprove).toContain('read_file');
   });
 

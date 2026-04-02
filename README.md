@@ -10,7 +10,7 @@ An AI coding assistant CLI powered by free LLMs through [OpenRouter](https://ope
 - **Skill system** — extend the CLI with custom prompt-based (`.md`) or code-based (`.ts`) skills, loaded from global and per-project directories
 - **Session persistence** — conversations are saved and can be resumed with `--resume`
 - **Project context** — drop a `.anvercode` file in your project root to give the model persistent instructions
-- **Free by default** — ships with `qwen/qwen3.6-plus-preview:free` via OpenRouter, swap to any model with `--model` or config
+- **Free by default** — ships with `qwen/qwen3.6-plus:free` via OpenRouter, swap to any model with `--model` or config
 
 ## Quick Start
 
@@ -59,7 +59,7 @@ anver --session ~/.anver-code/sessions/abc123.json
 Anver Code requires a model that supports **function calling (tool use)** through OpenRouter's API. The agentic loop sends tool definitions to the model and expects structured tool call responses back — without this, the model can't read files, write code, run commands, or use any tools.
 
 **Known compatible free models:**
-- `qwen/qwen3.6-plus-preview:free` (default)
+- `qwen/qwen3.6-plus:free` (default)
 
 **Will NOT work with** models that don't support function calling — they'll either error out or only chat without using tools.
 
@@ -172,7 +172,7 @@ anver config list
 | Key | Default | Description |
 |-----|---------|-------------|
 | `apiKey` | — | OpenRouter API key (or set `OPENROUTER_API_KEY` env var) |
-| `model` | `qwen/qwen3.6-plus-preview:free` | Default model |
+| `model` | `qwen/qwen3.6-plus:free` | Default model |
 | `theme` | `default` | UI theme |
 | `autoApprove` | Read-only tools | Tools that skip approval prompts |
 
