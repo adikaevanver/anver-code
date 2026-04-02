@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Box, Text, useApp } from 'ink';
 import type { LLMProvider } from '../core/provider.js';
 import type { BaseTool } from '../tools/BaseTool.js';
+import type { PromptSkill } from '../skills/types.js';
 import { Conversation } from '../core/conversation.js';
 import { QueryEngine, type QueryEvent } from '../core/query.js';
 import { MessageList } from './MessageList.js';
@@ -18,6 +19,7 @@ export interface AppProps {
   initialConversation?: Conversation;
   autoApprove: string[];
   cwd: string;
+  promptSkills: PromptSkill[];
 }
 
 type AppState = 'idle' | 'streaming' | 'tool_pending' | 'tool_running';
@@ -30,15 +32,6 @@ interface PendingTool {
   deny: () => void;
 }
 
-const HELP_TEXT = `Available commands:
-  /exit          Exit the application
-  /clear         Reset the conversation
-  /help          Show this help message
-
-Tips:
-  Up/Down arrows  Navigate input history
-  Enter           Submit your message`;
-
 export function App({
   provider,
   tools,
@@ -47,8 +40,22 @@ export function App({
   initialConversation,
   autoApprove,
   cwd,
+  promptSkills,
 }: AppProps) {
   const { exit } = useApp();
+
+  const skillCommandsHelp = promptSkills.length > 0
+    ? '\n\nSkill commands:\n' + promptSkills.map((s) => `  /${s.name}${' '.repeat(Math.max(1, 15 - s.name.length))}${s.description}`).join('\n')
+    : '';
+
+  const helpText = `Available commands:
+  /exit          Exit the application
+  /clear         Reset the conversation
+  /help          Show this help message${skillCommandsHelp}
+
+Tips:
+  Up/Down arrows  Navigate input history
+  Enter           Submit your message`;
 
   // Use a ref for the conversation so async closures always see the latest value
   const conversationRef = useRef<Conversation>(
@@ -195,6 +202,21 @@ export function App({
         return;
       }
 
+      // Check for skill slash command
+      if (trimmed.startsWith('/')) {
+        const skillName = trimmed.slice(1).split(/\s/)[0];
+        const skill = promptSkills.find((s) => s.name === skillName);
+        if (skill) {
+          setInputHistory((prev) => {
+            if (prev.length > 0 && prev[prev.length - 1] === trimmed) return prev;
+            return [...prev, trimmed];
+          });
+          setHelpVisible(false);
+          void processQuery(skill.prompt);
+          return;
+        }
+      }
+
       // Record in input history (deduplicate consecutive duplicates)
       setInputHistory((prev) => {
         if (prev.length > 0 && prev[prev.length - 1] === trimmed) return prev;
@@ -204,7 +226,7 @@ export function App({
       setHelpVisible(false);
       void processQuery(trimmed);
     },
-    [exit, systemPrompt, model, processQuery],
+    [exit, systemPrompt, model, processQuery, promptSkills],
   );
 
   const handleApprove = useCallback(() => {
@@ -247,7 +269,7 @@ export function App({
           <Text color="cyan" bold>
             Anver Code — Help
           </Text>
-          <Text>{HELP_TEXT}</Text>
+          <Text>{helpText}</Text>
         </Box>
       )}
 

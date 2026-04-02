@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import type { PromptSkill } from '../skills/types.js';
 
-export function buildSystemPrompt(cwd: string): string {
+export function buildSystemPrompt(cwd: string, skills?: PromptSkill[]): string {
   const sections: string[] = [];
 
   sections.push(`You are Anver Code, an interactive coding assistant CLI. You help users with software engineering tasks by reading, writing, searching, and managing code.
@@ -26,6 +27,17 @@ You have access to tools for file operations, shell commands, git, and web searc
   if (fs.existsSync(anvercodePath)) {
     const content = fs.readFileSync(anvercodePath, 'utf-8').trim();
     sections.push(`# Project Instructions\n${content}`);
+  }
+
+  if (skills && skills.length > 0) {
+    const skillLines = skills
+      .map((s) => `  /${s.name} — ${s.description}`)
+      .join('\n');
+    sections.push(`# Available Skills
+You have access to these custom skills. Suggest them when relevant.
+The user can trigger them with slash commands.
+
+${skillLines}`);
   }
 
   return sections.join('\n\n');

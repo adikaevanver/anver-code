@@ -7,6 +7,7 @@ import { buildSystemPrompt } from '../utils/systemPrompt.js';
 import { getLastSession, loadSession } from '../utils/history.js';
 import { Conversation } from '../core/conversation.js';
 import { App } from '../ui/App.js';
+import { loadSkills } from '../skills/loader.js';
 
 export interface LaunchOptions {
   model?: string;
@@ -14,7 +15,7 @@ export interface LaunchOptions {
   session?: string;
 }
 
-export function launchChat(options: LaunchOptions, initialPrompt?: string): void {
+export async function launchChat(options: LaunchOptions, initialPrompt?: string): Promise<void> {
   const config = loadConfig();
 
   const apiKey = config.apiKey ?? process.env.OPENROUTER_API_KEY ?? process.env.ANVER_API_KEY ?? '';
@@ -29,7 +30,11 @@ export function launchChat(options: LaunchOptions, initialPrompt?: string): void
 
   const provider = new OpenRouterProvider(apiKey);
   const tools = getTools();
-  const systemPrompt = buildSystemPrompt(cwd);
+
+  // Load skills
+  const loadedSkills = await loadSkills(cwd);
+  const allTools = [...tools, ...loadedSkills.codeSkills];
+  const systemPrompt = buildSystemPrompt(cwd, loadedSkills.promptSkills);
 
   let initialConversation: Conversation | undefined;
 
@@ -53,12 +58,13 @@ export function launchChat(options: LaunchOptions, initialPrompt?: string): void
   const { waitUntilExit } = render(
     React.createElement(App, {
       provider,
-      tools,
+      tools: allTools,
       model,
       systemPrompt,
       initialConversation,
       autoApprove,
       cwd,
+      promptSkills: loadedSkills.promptSkills,
     }),
   );
 

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { buildSystemPrompt } from '../../src/utils/systemPrompt.js';
+import type { PromptSkill } from '../../src/skills/types.js';
 
 describe('systemPrompt', () => {
   let tmpDir: string;
@@ -36,5 +37,28 @@ describe('systemPrompt', () => {
     const prompt = buildSystemPrompt(tmpDir);
     expect(prompt).toBeTruthy();
     expect(prompt).not.toContain('.anvercode');
+  });
+
+  it('appends skills section when skills are provided', () => {
+    const skills: PromptSkill[] = [
+      { name: 'commit', description: 'Create a git commit', prompt: 'Do the commit.', source: 'global' },
+      { name: 'review', description: 'Review code changes', prompt: 'Review the diff.', source: 'project' },
+    ];
+    const prompt = buildSystemPrompt(tmpDir, skills);
+    expect(prompt).toContain('# Available Skills');
+    expect(prompt).toContain('/commit');
+    expect(prompt).toContain('Create a git commit');
+    expect(prompt).toContain('/review');
+    expect(prompt).toContain('Review code changes');
+  });
+
+  it('does not include skills section when no skills provided', () => {
+    const prompt = buildSystemPrompt(tmpDir);
+    expect(prompt).not.toContain('Available Skills');
+  });
+
+  it('does not include skills section when skills array is empty', () => {
+    const prompt = buildSystemPrompt(tmpDir, []);
+    expect(prompt).not.toContain('Available Skills');
   });
 });
