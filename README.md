@@ -44,8 +44,8 @@ anver
 # With an initial prompt
 anver "refactor the database module"
 
-# Override model
-anver -m google/gemini-2.5-pro-exp-03-25 "explain this codebase"
+# Override model (any OpenRouter model)
+anver -m meta-llama/llama-4-maverick:free "explain this codebase"
 
 # Resume last session
 anver --resume
@@ -153,7 +153,7 @@ Stored at `~/.anver-code/config.json`. Manage via CLI:
 
 ```bash
 anver config set apiKey sk-or-...
-anver config set model google/gemini-2.5-pro-exp-03-25
+anver config set model meta-llama/llama-4-maverick:free
 anver config get model
 anver config list
 ```
@@ -184,7 +184,7 @@ bin/anver.ts          CLI entry point (Commander.js)
 src/
   commands/           CLI subcommands (chat, config, init, skill)
   core/
-    provider.ts       OpenRouter LLM provider (openai SDK)
+    provider.ts       OpenRouter LLM provider (openai-compatible SDK)
     query.ts          Agentic tool loop (async generator)
     conversation.ts   Message history + session persistence
     types.ts          Shared types
