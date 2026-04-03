@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { theme } from './theme.js';
 
@@ -10,6 +10,14 @@ interface InputPromptProps {
 export function InputPrompt({ onSubmit, history }: InputPromptProps) {
   const [input, setInput] = useState('');
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCursorVisible((prev) => !prev);
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
 
   useInput((ch, key) => {
     if (key.return) {
@@ -49,9 +57,12 @@ export function InputPrompt({ onSubmit, history }: InputPromptProps) {
 
   return (
     <Box>
-      <Text color="cyan">{"> "}</Text>
-      <Text>{input}</Text>
-      <Text dimColor>{"█"}</Text>
+      <Text>
+        {theme.dim('[anver]')}
+        {theme.primary('>> ')}
+        {theme.primary(input)}
+        {cursorVisible ? theme.primary('█') : ' '}
+      </Text>
     </Box>
   );
 }
