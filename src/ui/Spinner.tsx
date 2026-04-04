@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text } from 'ink';
+import { Box, Text, useStdout } from 'ink';
+import { MatrixRain } from './MatrixRain.js';
 import { theme } from './theme.js';
-
-const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
 interface SpinnerProps {
   model: string;
@@ -10,14 +9,14 @@ interface SpinnerProps {
 }
 
 export function Spinner({ model, label }: SpinnerProps) {
-  const [frameIndex, setFrameIndex] = useState(0);
+  const { stdout } = useStdout();
+  const columns = stdout?.columns ?? 80;
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFrameIndex((i) => (i + 1) % frames.length);
-      setElapsed((e) => e + 80);
-    }, 80);
+      setElapsed((e) => e + 100);
+    }, 100);
     return () => clearInterval(interval);
   }, []);
 
@@ -25,8 +24,14 @@ export function Spinner({ model, label }: SpinnerProps) {
   const displayLabel = label ?? 'Thinking';
 
   return (
-    <Text>
-      {theme.spinner(frames[frameIndex])} {theme.muted(`${displayLabel}...`)} {theme.accent(model)} {theme.muted(`(${seconds}s)`)}
-    </Text>
+    <Box flexDirection="column">
+      <MatrixRain columns={columns} rows={3} active={true} />
+      <Text>
+        {theme.primary('⟩ ')}
+        {theme.dim(`${displayLabel}... `)}
+        {theme.primary(model)}
+        {theme.dim(` (${seconds}s)`)}
+      </Text>
+    </Box>
   );
 }
