@@ -55,6 +55,8 @@ export async function launchChat(options: LaunchOptions, initialPrompt?: string)
     }
   }
 
+  const skipSplash = !!(options.resume || options.session || initialPrompt);
+
   const { waitUntilExit } = render(
     React.createElement(App, {
       provider,
@@ -65,16 +67,10 @@ export async function launchChat(options: LaunchOptions, initialPrompt?: string)
       autoApprove,
       cwd,
       promptSkills: loadedSkills.promptSkills,
+      initialPrompt,
+      skipSplash,
     }),
   );
-
-  // If an initial prompt was provided, we inject it after mount via a small
-  // wrapper approach — but App handles user input via its InputPrompt.
-  // For now, surface the prompt as a startup message via environment so the
-  // user can see what they typed; full stdin injection is left for a future task.
-  if (initialPrompt) {
-    process.env.ANVER_INITIAL_PROMPT = initialPrompt;
-  }
 
   waitUntilExit().then(() => {
     process.exit(0);

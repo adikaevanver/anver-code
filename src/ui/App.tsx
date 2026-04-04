@@ -9,6 +9,9 @@ import { MessageList } from './MessageList.js';
 import { InputPrompt } from './InputPrompt.js';
 import { PermissionPrompt } from './PermissionPrompt.js';
 import { Spinner } from './Spinner.js';
+import { StartupSplash } from './StartupSplash.js';
+import { AppHeader } from './AppHeader.js';
+import { theme } from './theme.js';
 import { saveSession } from '../utils/history.js';
 import { loadSkills } from '../skills/loader.js';
 import { WRITE_FILE_RESULT_PREFIX } from '../tools/WriteFile.js';
@@ -24,6 +27,8 @@ export interface AppProps {
   autoApprove: string[];
   cwd: string;
   promptSkills: PromptSkill[];
+  initialPrompt?: string;
+  skipSplash?: boolean;
 }
 
 type AppState = 'idle' | 'streaming' | 'tool_pending' | 'tool_running';
@@ -54,6 +59,8 @@ export function App({
   autoApprove,
   cwd,
   promptSkills,
+  initialPrompt,
+  skipSplash,
 }: AppProps) {
   const { exit } = useApp();
 
@@ -72,6 +79,8 @@ export function App({
   const [inputHistory, setInputHistory] = useState<string[]>([]);
   const [helpVisible, setHelpVisible] = useState(false);
   const [currentSkills, setCurrentSkills] = useState(promptSkills);
+  const [showSplash, setShowSplash] = useState(!skipSplash);
+  const [tokenCount, setTokenCount] = useState(0);
 
   const skillCommandsHelp = currentSkills.length > 0
     ? '\n\nSkill commands:\n' + currentSkills.map((s) => `  /${s.name}${' '.repeat(Math.max(1, 15 - s.name.length))}${s.description}`).join('\n')
@@ -93,11 +102,21 @@ Tips:
     setMessages(conversationRef.current.getMessages());
   }, []);
 
+  const estimateTokens = useCallback(() => {
+    const msgs = conversationRef.current.getMessages();
+    let chars = 0;
+    for (const m of msgs) { chars += m.content.length; }
+    setTokenCount(Math.round(chars / 4));
+  }, []);
+
+  const handleSplashComplete = useCallback(() => { setShowSplash(false); }, []);
+
   const processQuery = useCallback(
     async (userText: string) => {
       const conversation = conversationRef.current;
       conversation.addUserMessage(userText);
       syncMessages();
+      estimateTokens();
 
       setAppState('streaming');
       setStreamingContent('');
@@ -155,6 +174,7 @@ Tips:
             case 'tool_result': {
               setRunningToolName(null);
               syncMessages();
+              estimateTokens();
               setAppState('streaming');
 
               // Reload skills if a file was written to a skills directory
@@ -174,6 +194,7 @@ Tips:
             case 'tool_error': {
               setRunningToolName(null);
               syncMessages();
+              estimateTokens();
               setAppState('streaming');
               break;
             }
@@ -181,6 +202,7 @@ Tips:
             case 'done': {
               setStreamingContent('');
               syncMessages();
+              estimateTokens();
               setAppState('idle');
 
               // Persist session
@@ -225,6 +247,7 @@ Tips:
         setMessages(conversationRef.current.getMessages());
         setStreamingContent('');
         setHelpVisible(false);
+        setTokenCount(0);
         setAppState('idle');
         return;
       }
@@ -284,8 +307,24 @@ Tips:
     }
   }, [pendingTool]);
 
+  const initialPromptSent = useRef(false);
+  useEffect(() => {
+    if (!showSplash && initialPrompt && !initialPromptSent.current && appState === 'idle') {
+      initialPromptSent.current = true;
+      setInputHistory((prev) => [...prev, initialPrompt]);
+      void processQuery(initialPrompt);
+    }
+  }, [showSplash, initialPrompt, appState, processQuery]);
+
+  if (showSplash) {
+    return <StartupSplash model={model} onComplete={handleSplashComplete} />;
+  }
+
   return (
     <Box flexDirection="column" paddingX={1}>
+      {/* Header bar */}
+      <AppHeader model={model} tokenCount={tokenCount} />
+
       {/* Message history + live streaming */}
       <MessageList messages={messages} streamingContent={streamingContent} />
 
@@ -293,15 +332,15 @@ Tips:
       {helpVisible && (
         <Box
           borderStyle="round"
-          borderColor="cyan"
+          borderColor="green"
           paddingX={1}
           marginBottom={1}
           flexDirection="column"
         >
-          <Text color="cyan" bold>
+          <Text color="green" bold>
             Anver Code — Help
           </Text>
-          <Text>{helpText}</Text>
+          <Text>{theme.secondary(helpText)}</Text>
         </Box>
       )}
 
